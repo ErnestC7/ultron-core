@@ -54,7 +54,7 @@ function App() {
     const endpoint = authMode === 'login' ? '/api/login' : '/api/register';
 
     try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`https://ultron-backend-a9a3.onrender.com${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(authForm)
@@ -92,7 +92,7 @@ function App() {
   const fetchKPIs = async () => {
     if (!token) return;
     try {
-      const response = await fetch('http://localhost:5000/api/kpis', {
+      const response = await fetch('https://ultron-backend-a9a3.onrender.com/api/kpis', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const result = await response.json();
@@ -117,7 +117,7 @@ function App() {
   const handleDeleteKPI = async (id) => {
     if (!window.confirm('Delete this KPI entry?')) return;
     try {
-      await fetch(`http://localhost:5000/api/kpis/${id}`, {
+      await fetch(`https://ultron-backend-a9a3.onrender.com/api/kpis/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -141,7 +141,7 @@ function App() {
       month
     };
     try {
-      const response = await fetch('http://localhost:5000/api/kpis', {
+      const response = await fetch('https://ultron-backend-a9a3.onrender.com/api/kpis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ function App() {
     setIsAnalyzingKPI(id);
     try {
       const kpiToAnalyze = kpis.find(k => k.id === id);
-      const response = await fetch('http://localhost:8000/api/predict', {
+      const response = await fetch('https://ultron-ai-service-254w.onrender.com/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -233,7 +233,7 @@ function App() {
       formData.append('file', plan.fileObject);
       formData.append('ai_choice', aiChoice);
 
-      const response = await fetch('http://localhost:8000/api/workplan/analyze', {
+      const response = await fetch('https://ultron-ai-service-254w.onrender.com/analyze' , {
         method: 'POST',
         body: formData
       });
@@ -281,7 +281,7 @@ function App() {
 
     for (const kpi of csvData) {  
       try {
-        const response = await fetch('http://localhost:5000/api/kpis', {
+        const response = await fetch('https://ultron-backend-a9a3.onrender.com/api/kpis', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
