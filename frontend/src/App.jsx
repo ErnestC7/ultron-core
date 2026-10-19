@@ -127,6 +127,7 @@ function App() {
     }
   };
 
+  //  Single Submit with Error Alert ---
   const handleSingleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !targetValue || !actualValue) return alert('Complete all metric inputs.');
@@ -140,7 +141,7 @@ function App() {
       month
     };
     try {
-      await fetch('http://localhost:5000/api/kpis', {
+      const response = await fetch('http://localhost:5000/api/kpis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,11 +149,23 @@ function App() {
         },
         body: JSON.stringify(payload)
       });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+          alert("Database Error: " + data.message);
+          return; 
+      }
+
       setName('');
       setTargetValue('');
       setActualValue('');
       fetchKPIs();
       setActiveTab('dashboard');
+      alert(" Success! Metric saved to database.");
+      
+    } catch (err) {
+      alert("Network Error: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -260,22 +273,45 @@ function App() {
     reader.readAsText(file);
   };
 
+  // : Bulk Commit with Error Alert ---
   const handleBulkCommit = async () => {
     setIsBulkCommitting(true);
-    for (const kpi of csvData) {
-      await fetch('http://localhost:5000/api/kpis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(kpi)
-      });
+    let successCount = 0;
+    let errorMsg = "";
+
+    for (const kpi of csvData) {  
+      try {
+        const response = await fetch('http://localhost:5000/api/kpis', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(kpi)
+        });
+        
+        const data = await response.json();
+        if (!data.success) {
+          errorMsg = data.message;
+          break;
+        }
+        successCount++;
+      } catch (err) {
+        errorMsg = err.message;
+        break;
+      }
     }
-    setCsvData([]);
+
     setIsBulkCommitting(false);
-    fetchKPIs();
-    setActiveTab('dashboard');
+    
+    if (errorMsg) {
+      alert(`Database Error after saving ${successCount} records: ` + errorMsg);
+    } else {
+      alert(`Successfully saved ${successCount} metrics!`);
+      setCsvData([]);
+      fetchKPIs();
+      setActiveTab('dashboard');
+    }
   };
 
   const displayedKpis = deptFilter === 'All Departments' ? kpis : kpis.filter(k => (k.department || 'Unassigned') === deptFilter);
@@ -290,13 +326,13 @@ function App() {
           Strategic Planning System with AI
         </h1>
         <p className="text-gray-600 max-w-xl text-center mb-8">
-          Balanced Scorecards, multi-format operational document auditing, and dual-LLM analysis.
+          Aligning departmental execution with institutional vision through intelligent performance tracking.
         </p>
         <button
           onClick={() => setCurrentView(token ? 'app' : 'auth')}
           className="bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-full font-bold shadow-md transition"
         >
-          {token ? 'Enter Dashboard' : 'Secure Login'}
+          {token ? 'Enter Dashboard' : 'Login'}
         </button>
       </div>
     );
@@ -313,7 +349,7 @@ function App() {
             {authMode === 'login' ? 'System Login' : 'Provision Role Account'}
           </h2>
           <p className="text-xs text-gray-500 text-center mb-6">
-            Authenticate to access the departmental performance engine.
+            Authenticate to access the departmental performance data.
           </p>
 
           {authError && (
@@ -398,7 +434,7 @@ function App() {
       {/* SIDEBAR */}
       <aside className="w-64 bg-green-900 text-white flex flex-col z-20">
         <div className="p-6 border-b border-green-800">
-          <h1 className="text-xl font-bold tracking-tight">AI STRATEGY CORE</h1>
+          <h1 className="text-xl font-bold tracking-tight">OPERATIONS HUB</h1>
           <div className="mt-3 bg-green-950/60 p-2.5 rounded border border-green-800 text-xs">
             <p className="text-green-300 truncate">User: {currentUser?.username}</p>
             <p className="text-[10px] font-bold uppercase tracking-wider text-green-200 mt-0.5">
@@ -433,7 +469,7 @@ function App() {
                 onClick={() => setActiveTab('bulk')}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded text-sm transition ${activeTab === 'bulk' ? 'bg-green-800 text-white' : 'text-green-100 hover:bg-green-800/40'}`}
               >
-                <BulkUploadIcon /> Smart CSV Import
+                <BulkUploadIcon /> Bulk File Import
               </button>
             </>
           )}

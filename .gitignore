@@ -1,7 +1,10 @@
-# Node
+# Node 
 node_modules/
 dist/
+build/
 .env
+.env.*
+npm-debug.log*
 
 # Python
 venv/
