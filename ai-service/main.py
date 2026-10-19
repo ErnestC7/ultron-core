@@ -39,19 +39,19 @@ async def extract_text_from_file(file: UploadFile) -> str:
         if ext in ['txt', 'csv']:
             text = content.decode('utf-8', errors='ignore')
         elif ext == 'pdf':
-        reader = PyPDF2.PdfReader(io.BytesIO(content))
-        extracted_pages = []
-        current_length = 0
-        for page in reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                extracted_pages.append(page_text)
-                current_length += len(page_text)
-            
-            # Stop extracting once we reach your 15,000 character limit
-            if current_length >= 15000:
-                break
-        text = " ".join(extracted_pages)
+            reader = PyPDF2.PdfReader(io.BytesIO(content))
+            extracted_pages = []
+            current_length = 0
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    extracted_pages.append(page_text)
+                    current_length += len(page_text)
+                
+                if current_length >= 15000:
+                    break
+            text = " ".join(extracted_pages)
+        elif ext == 'docx':
             doc = docx.Document(io.BytesIO(content))
             text = " ".join([p.text for p in doc.paragraphs])
         elif ext in ['xls', 'xlsx']:
