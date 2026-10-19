@@ -495,7 +495,7 @@ function App() {
             {activeTab === 'bulk' && 'Bulk Batch Data Ingestion'}
           </h2>
           <div className="text-xs bg-green-50 text-green-700 px-3 py-1 rounded border border-green-200 font-semibold">
-            Status: Dual AI Ready
+            Status: Dual AI Ready V1.0  
           </div>
         </header>
 
