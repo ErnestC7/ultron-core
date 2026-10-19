@@ -2,42 +2,21 @@ require('dotenv').config();
 const { Client } = require('pg');
 
 async function setupDatabase() {
-    // 1. Connect to the default 'postgres' database to create the new one
-    const sysClient = new Client({
-        user: process.env.DB_USER || 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        database: 'postgres', // The default DB every server has
+    // Connect directly to the database Render already made
+    const client = new Client({
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
         password: process.env.DB_PASSWORD,
         port: process.env.DB_PORT || 5432,
     });
 
     try {
-        await sysClient.connect();
-        console.log("⏳ Connected to PostgreSQL System...");
-        
-        // Check if ultron_db exists, create it if not
-        const checkDb = await sysClient.query("SELECT 1 FROM pg_database WHERE datname = 'ultron_db'");
-        if (checkDb.rowCount === 0) {
-            console.log("🔨 Creating 'ultron_db' database...");
-            await sysClient.query('CREATE DATABASE ultron_db');
-        } else {
-            console.log("✅ 'ultron_db' database already exists.");
-        }
-        await sysClient.end();
+        await client.connect();
+        console.log("⏳ Connected to Render PostgreSQL...");
 
-        // 2. Connect to our new 'ultron_db' to build the tables
-        const appClient = new Client({
-            user: process.env.DB_USER || 'postgres',
-            host: process.env.DB_HOST || 'localhost',
-            database: 'ultron_db',
-            password: process.env.DB_PASSWORD,
-            port: process.env.DB_PORT || 5432,
-        });
-
-        await appClient.connect();
-        
-        console.log("🔨 Creating 'users' table (Security)...");
-        await appClient.query(`
+        console.log("🔨 Creating 'users' table...");
+        await client.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50) UNIQUE NOT NULL,
@@ -47,8 +26,8 @@ async function setupDatabase() {
             );
         `);
 
-        console.log("🔨 Creating 'kpis' table (Scorecards)...");
-        await appClient.query(`
+        console.log("🔨 Creating 'kpis' table...");
+        await client.query(`
             CREATE TABLE IF NOT EXISTS kpis (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -61,8 +40,8 @@ async function setupDatabase() {
             );
         `);
 
-        console.log("✅ SUCCESS: Database and all tables are ready for deployment!");
-        await appClient.end();
+        console.log("✅ SUCCESS: All tables created successfully!");
+        await client.end();
         process.exit(0);
 
     } catch (err) {
