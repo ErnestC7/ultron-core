@@ -233,7 +233,7 @@ function App() {
       formData.append('file', plan.fileObject);
       formData.append('ai_choice', aiChoice);
 
-      const response = await fetch('https://ultron-ai-service-254w.onrender.com/analyze' , {
+      const response = await fetch('https://ultron-ai-service-254w.onrender.com/analyze', {
         method: 'POST',
         body: formData
       });
