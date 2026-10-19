@@ -175,7 +175,7 @@ function App() {
     setIsAnalyzingKPI(id);
     try {
       const kpiToAnalyze = kpis.find(k => k.id === id);
-      const response = await fetch('https://ultron-ai-service-254w.onrender.com/analyze', {
+      const response = await fetch('https://ultron-ai-service-254w.onrender.com/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -233,7 +233,7 @@ function App() {
       formData.append('file', plan.fileObject);
       formData.append('ai_choice', aiChoice);
 
-      const response = await fetch('https://ultron-ai-service-254w.onrender.com/analyze', {
+      const response = await fetch('https://ultron-ai-service-254w.onrender.com/api/workplan/analyze', {
         method: 'POST',
         body: formData
       });
